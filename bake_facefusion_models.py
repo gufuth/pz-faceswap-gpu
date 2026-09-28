@@ -7,7 +7,10 @@ so the files land in .assets/models exactly where a run looks for them and the
 xseg_2 + region parser, recognizer, classifier, content analyser, voice extractor)
 plus the swappers / enhancers the Player exposes and live_portrait.
 """
+import os
 import sys
+
+sys.path.insert(0, os.getcwd())  # run from /opt/facefusion; the script itself lives in /opt/pz
 
 import facefusion.core as core
 from facefusion import content_analyser, face_classifier, face_detector, face_landmarker, face_masker, face_recognizer, voice_extractor
