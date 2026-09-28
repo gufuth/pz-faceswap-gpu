@@ -61,7 +61,15 @@ if [ ! -f $W/.m_pip ]; then
     case $m in skimage) p=scikit-image;; yaml) p=pyyaml;; PIL) p=pillow;; cv2) p=opencv-python;; sklearn) p=scikit-learn;; *) p=$m;; esac
     echo "auto-installing $p"; pip install -q $p 2>&1 | tail -2
   done
-  echo "$out" | grep -q "usage:" || { echo "$out" | tail -30; fail setup_import_check; }
+  # Image build (PZ_SETUP_ONLY=1) runs on a GPU-less host: the script imports cleanly
+  # (no missing module above) and only stops at CUDA init, which a real pod passes.
+  if ! echo "$out" | grep -q "usage:"; then
+    if [ "${PZ_SETUP_ONLY:-0}" = "1" ] && echo "$out" | grep -q "Found no NVIDIA driver"; then
+      echo "IMPORT_CHECK build host has no GPU: imports ok up to CUDA init"
+    else
+      echo "$out" | tail -30; fail setup_import_check
+    fi
+  fi
   touch $W/.m_pip
 fi
 
